@@ -12,3 +12,5 @@
   + invite myself and the TAs to your repository
 
 - BEGIN BRAINSTORMING DATA IDEAS! Write notes down about your brainstormin and put them in a .md file in the repo.
+
+DEADLINE: Thursday, October 29th before class.
