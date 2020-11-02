@@ -1,0 +1,49 @@
+---
+title: "week10-hw.Rmd"
+author: "Colin Henry"
+date: "10/29/2020"
+output: html_document
+---
+
+## Obtaining data
+
+Navigate to this Github repository and select a new text dataset to analyze: https://github.com/niderhoff/nlp-datasets
+
+I *highly* recommend choosing one that is not TBs or GBs in size! But otherwise, the choice of dataset is up to you. Keep in mind that the text data you initially select may not be formatted for easy analysis, and you may have to do some processing of the data to get it into "TidyText" format. For tips and tools on how to clean up difficult text data, please visit the TidyText website here: https://www.tidytextmining.com/tidytext.html
+
+## Processing data
+1. Import your data into R
+2. Perform any additional cleaning tasks as needed.
+
+```{r}
+
+```
+
+## Word count
+1. Tokenize your corpus and generate a word count.
+2. Using the `TidyText` package, remove stop words and generate a new word count.
+3. Create a visualization of the word count distribution and interpret your results.
+
+```{r}
+
+```
+
+## Tf-idf
+1. Generate a tf-idf measure of words in your dataset.
+2. Create a visualization of the tf-idf measure and interpret your results.
+3. Is the basic word count or the tf-idf more appropriate for your analysis?
+
+```{r}
+
+```
+
+## Sentiment analysis
+1. Using the built-in sentiments from `TidyText`, generate sentiment counts for your words using either the basic word count or tf-idf measure from above.
+2. Create a visualization of the sentiment measure. Interpret your results.
+
+```{r}
+
+```
+
+## Interpretation
+Write a paragraph interpreting the word count, tf-idf, and sentiment of the words in your dataset. What do these tell us about the conversations surrounding your hashtag (if anything)? How could you improve this analysis?
