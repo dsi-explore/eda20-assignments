@@ -1,0 +1,233 @@
+---
+title: "PCA & Clustering Practice"
+output:
+  github_document: default
+editor_options: 
+  chunk_output_type: inline
+---
+
+## Set up
+
+First, let's load our required packages. Some of these should be familiar to you, some are specifically for the types of figures we'll use below. I encourage you to use the '?' command to read about those you don't recognize. You can also look online to read more about [factoextra](https://www.rdocumentation.org/packages/factoextra/versions/1.0.3) and [ggiraphExtra](https://cran.r-project.org/web/packages/ggiraphExtra/vignettes/introduction.html).
+
+```{r load packages, message=F}
+packages <- c("tidyverse", "stats", "factoextra", "janitor", "ggiraphExtra", "ggrepel", "MuMIn", "gridExtra")
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+Now let's import our dataset. This file is sourced from the [World Happiness Report](https://www.kaggle.com/unsdsn/world-happiness). Later, we'll also use [Ecological Footprint data](https://www.kaggle.com/footprintnetwork/ecological-footprint). 
+
+```{r import data, message=F}
+df <- read_csv("data/merged_data.csv") %>% clean_names()
+```
+
+## First explore the data
+
+Explore the data. After doing so, provide **at least 5 sentences** about the names of variables, data types, dimensions, shape, etc.
+
+Below, we'll make some major changes to the structure of our dataframe. First, we use a basic select to eliminate the columns we aren't interested in. This is something you would determine ahead of time after asking questions like "what are we actually trying to observe?" There is no fancy decisionmaking process here. To help you later on in this assignment, I'll describe the variables here:
+
+```{r select variables}
+df <- df %>% 
+  select(country, economy_gdp_per_capita, family, health_life_expectancy, freedom, trust_government_corruption, generosity, dystopia_residual)
+```
+
+Variable Description:  
+
+- **economy_gdp_per_capita**: (objective) a measure of economic strength  
+- **family**: (subjective) How close the average respondent claims to be with their family  
+- **health_life_expectancy**: (objective) Higher values indicate longer life expectancies  
+- **freedom**: (subjective) Higher values indicate a greater 'sense' of freedom by respondents  
+- **trust_government_corruption**: (subjective) Higher values indicate a greater trust in national government  
+- **generosity**: (subjective) Higher values indicate a greater sense of generosity from the general population  
+- **dystopia_residual** (subjective) This calculated value indicates how much each country represents a 'dystopia'; higher values indicate a """"""better""""""" country overall 
+
+
+For future purposes, we'll then remove NAs and the "country name" variable. 
+
+```{r remove NAs and country labels}
+# omit NAs
+df <- na.omit(df)
+
+# set row names to country labels and then remove for now
+row.names(df)<-df$country
+df[1] <- NULL
+```
+
+## Prepare for analysis
+
+In this homework we want you to explore the data using both PCA and k-means cluster analyses.
+
+In order to perform principal components and cluster analysis, our data need to be [scaled](http://www.statistics4u.com/fundstat_eng/cc_scaling.html). Scale the data below and following your code, please **provide 2-3 sentences explaining what scaling is and why it is important for clustering** in this case.
+
+```{r scale df}
+df <- scale(df)
+```
+
+### Part 1: PCA
+
+1. Conduct a PCA analysis of this data. You can calculate it 'by hand' or use built in packages in functions. 
+
+2. Once you have your component scores, create a new data frame that binds these scores to the original data and, in particular, the country names.
+
+3. Plot your first two principal components. Report how much variation they capture in your data.
+
+4. Plot scree ploots and interpret their meaning for your analysis. 
+
+### Part 2: K-means Clustering
+
+1. An important step in performing cluster analysis is determining how many clusters (or 'centers') to use. First, generate an elbow plot to inform the number of clusters for your analysis. Explain your decision by interpreting the elbow plot.  **Based on this elbow plot, how many clusters do you think we should use? Why?**
+
+```{r create elbow plot}
+set.seed(123)
+
+fviz_nbclust()
+```
+
+2. Your kmeans command will need to include three components: the dataframe we are using, the number of centers you decided on using the elbow plot, and an 'nstart' value (the minimum size of each cluster). Don't forget to call your object after assigning it so that you can see what happened. 
+
+```{r perform kmeans}
+?kmeans
+
+```
+
+
+3. Let's create a plot to visualize our clusters.  **How many dimensions are there? What is the general size/shape of the clusters? What would make this plot more useful?** 
+
+```{r plot clusters}
+
+```
+
+
+---
+
+4. Now that we have our centers for each variable saved as a dataframe, and we know that we have *n* clusters, we can organize the variables into clusters. Add a column to your dataframe for each cluster (hint: create a vector of values 1:n and then use cbind). Your output dataframe should have a row for each cluster and a column for each of the seven variables. Visually explore the relationship between your original data and the clusters. Also, consider renaming the columns within our dataframe so that they look nice when displayed: 
+
+```{r save cluster assignments as dataframe}
+
+```
+
+
+```{r rename columns}
+
+```
+
+
+Now we'll do something else kinda cool. Rather than visualizing how the countries fit into the overall clusters, let's look at how each cluster is actually composed. To do so, we will use 'ggRadar' to generate some radar plots. **What does this plot tell you about each cluster?**
+
+```{r  fig.height = 8, fig.width = 8}
+devtools::install_github("https://github.com/ricardo-bion/ggradar")
+library(ggradar)
+
+mycolor <- "#1c6193"
+
+p <- ggRadar(df_radar, aes(group = cluster), 
+             rescale = FALSE, legend.position = "none",
+             size = 1, interactive = FALSE, use.label = TRUE) +
+  facet_wrap(~cluster) +
+  scale_y_discrete(breaks = NULL) + # don't show ticks 
+  theme(axis.text.x = element_text(size = 6)) + # larger label sizes
+  # adjust colors
+  scale_fill_manual(values = rep(mycolor, 
+                                 nrow(df_radar))) +
+  scale_color_manual(values = rep(mycolor, 
+                                  nrow(df_radar))) +
+  ggtitle(" Happiness Radar Plots") + 
+  theme_minimal() +
+  theme(text = element_text(color = "black"))
+
+print(p)
+```
+
+To make comparisons a little easier, you could also stack the plots on top of one another: 
+
+```{r fig.height = 8, fig.width = 8}
+
+p <- ggRadar(df_radar, aes(group = cluster), 
+             rescale = FALSE,
+             size = 1, 
+             interactive = FALSE, 
+             use.label = TRUE) +
+  scale_y_discrete(breaks = NULL) + # don't show ticks 
+  theme(axis.text.x = element_text(size = 20),legend.position="right") + 
+  theme_minimal() + 
+  theme(text = element_text(color = "black"),
+        plot.title = element_text(size = 40)) + 
+  ggtitle("Happiness radar plot")
+
+print(p)
+
+```
+
+## Discussion
+
+1. What did you learn from this analysis? What might be some of the pros and cons of PCA versus k-means in this setting?
+
+## Bonus Material! Ecological data
+
+Let's repeat our above exercise using the ecological data we referenced earlier. 
+
+```{r load in eco data, message=F}
+eco_df <- read_csv("data/merged_data.csv") %>% 
+  select(country,'Forest Footprint','Urban Land','Fish Footprint','Cropland','Carbon Footprint')
+```
+
+Perform some modifications to the dataframe (omit NAs, set row names to countries, scale data):
+```{r df modifications, warning=F}
+# omit NA values
+eco_df <- na.omit(eco_df)
+
+# save a copy of the current df
+eco_df_1 <- eco_df
+
+# set row names as countries and then remove for scaling purposes
+row.names(eco_df) <- eco_df$country
+eco_df[1]<-NULL
+
+# scale dataframe
+eco_df <- scale(eco_df)
+
+# add country names back
+eco_df_with_country <-as.data.frame(eco_df)
+eco_df_with_country$country = eco_df_1$country
+```
+
+Create the elbow plot to decide how many centers to use:
+```{r}
+set.seed(264)
+
+fviz_nbclust(eco_df, kmeans, method = "wss") + 
+  ggtitle("Elbow plot") +
+  theme_classic() +
+  theme(text = element_text(color = "black"), 
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank())
+```
+
+```{r perform k_means clustering}
+kmeans_5 <- kmeans(eco_df, centers = 5, nstart = 25)
+eco_df_with_country$clusters5 <- as.factor(kmeans_5$cluster)
+eco_df_with_country$num <- seq(1, nrow(eco_df_with_country))
+
+# filter labels
+eco_df_with_country$country[which((!eco_df_with_country$num %in%  c(1,2,3,4,5,6,7,8,62,84,89,91,95,102)))] = ""
+```
+
+Finally, let's look at our clustering for the ecological footprint data. **In 2-3 sentences, describe what you see**
+
+```{r cluster plot for eco data}
+fviz_cluster(kmeans_5, data = eco_df, geom = "point") + 
+  theme_minimal() + 
+  theme(text = element_text(color = "black")) + 
+  ggtitle("") + 
+  theme(text = element_text (color = "black")) + 
+  theme_bw() + 
+  theme(panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), 
+        axis.line = element_line(colour = "black")) + 
+  geom_label_repel(aes(label = eco_df_with_country$country,
+                       col = eco_df_with_country$clusters5)) + 
+  theme(legend.position = "none")
+```
+
