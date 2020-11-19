@@ -5,6 +5,9 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+## Due date:
+
+Your homework is due December 3rd at class time.
 
 ## Set up
 
